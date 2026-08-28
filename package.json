@@ -1,0 +1,14 @@
+{
+  "name": "store-monorepo",
+  "private": true,
+  "scripts": {
+    "dev": "npm run dev --prefix backend & npm run dev --prefix frontend & npm run dev --prefix admin",
+    "build": "npm install --prefix backend && npm run build --prefix backend && npm install --prefix frontend && npm install --prefix admin && npm run build --prefix frontend && npm run build --prefix admin",
+    "start": "npm start --prefix backend",
+    "install:all": "npm install --prefix backend && npm install --prefix frontend && npm install --prefix admin",
+    "build:cwp": "npm run build && mkdir -p deploy_cwp/backend deploy_cwp/frontend && cp -r backend/dist backend/package.json backend/package-lock.json deploy_cwp/backend/ && cp -r frontend/dist deploy_cwp/frontend/ && cd deploy_cwp && zip -r deploy.zip ."
+  },
+  "dependencies": {
+    "xlsx": "^0.18.5"
+  }
+}

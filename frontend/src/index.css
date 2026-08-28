@@ -1,0 +1,104 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --animate-marquee: marquee 15s linear infinite;
+  --animate-marquee-reverse: marquee-reverse 15s linear infinite;
+  --animate-fade-in-up: fadeInUp 0.5s ease-out forwards;
+  --animate-slide-up: slideUp 0.4s ease-out forwards;
+
+  @keyframes marquee {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(-100%); }
+  }
+  @keyframes marquee-reverse {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  @keyframes slideUp {
+    from {
+      transform: translateY(100%);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+
+  /* PREMIUM GAMING THEME (Apple, Linear, Stripe, Vercel) */
+
+  /* Elegant Neutrals with Blue/Violet undertones */
+  --color-white: #FCFCFD;
+  --color-black: #08090B;
+  
+  --color-gray-50: #F6F8FA;
+  --color-gray-100: #EEF1F6;
+  --color-gray-200: #DFE4EC;
+  --color-gray-300: #C7D0DE;
+  --color-gray-400: #A1AEC2;
+  --color-gray-500: #7887A1;
+  --color-gray-600: #5B6882;
+  --color-gray-700: #424D63;
+  --color-gray-800: #262D3D;
+  --color-gray-900: #12151D;
+  --color-gray-950: #0A0C12;
+
+  /* Primary Accent: Electric Indigo / PlayStation Blue */
+  --color-blue-50: #EEF2FF;
+  --color-blue-100: #DFE7FF;
+  --color-blue-200: #C3D3FF;
+  --color-blue-300: #9AB6FF;
+  --color-blue-400: #6B91FF;
+  --color-blue-500: #4067FF;
+  --color-blue-600: #2643E5;
+  --color-blue-700: #1B2EB0;
+  --color-blue-800: #16248A;
+  --color-blue-900: #121E6E;
+  --color-blue-950: #0A1145;
+
+  /* Secondary Accent: Rich Violet (Vercel/Stripe) */
+  --color-purple-50: #F6F3FF;
+  --color-purple-100: #ECE7FF;
+  --color-purple-200: #DBD0FF;
+  --color-purple-300: #C2AEFF;
+  --color-purple-400: #A385FF;
+  --color-purple-500: #855CFF;
+  --color-purple-600: #6D3AE6;
+  --color-purple-700: #5526BE;
+  --color-purple-800: #461F99;
+  --color-purple-900: #3A1B7E;
+  --color-purple-950: #230F54;
+
+  /* Status Colors */
+  /* Success: Vivid Emerald */
+  --color-emerald-50: #ECFDF4;
+  --color-emerald-100: #D1FAE3;
+  --color-emerald-400: #2EE59D;
+  --color-emerald-500: #00CC7E;
+  --color-emerald-600: #00A664;
+  --color-emerald-900: #00452C;
+  --color-emerald-950: #002919;
+
+  /* Warning: Bright Amber */
+  --color-amber-50: #FFFBEB;
+  --color-amber-100: #FEF3C7;
+  --color-amber-400: #FBBF24;
+  --color-amber-500: #F59E0B;
+  --color-amber-600: #D97706;
+
+  /* Error: Vibrant Rose */
+  --color-rose-50: #FFF1F3;
+  --color-rose-100: #FFE4E8;
+  --color-rose-400: #FF6B8B;
+  --color-rose-500: #F43F5E;
+  --color-rose-600: #E11D48;
+}

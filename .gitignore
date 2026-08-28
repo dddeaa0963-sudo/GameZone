@@ -1,0 +1,28 @@
+node_modules/
+build/
+dist/
+coverage/
+.DS_Store
+*.log
+.env*
+!.env.example
+
+# Temporary Scripts
+fix_syntax*.js
+patch*.js
+test_*.js
+fix_*.js
+update_*.js
+replace_*.js
+prepare_*.js
+
+# Deployment and Build Archives
+*.tar
+*.tar.gz
+*.zip
+cwp_ready/
+deploy_*/
+staging_dir/
+
+# Lock files
+bun.lock

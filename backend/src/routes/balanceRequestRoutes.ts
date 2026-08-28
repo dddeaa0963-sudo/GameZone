@@ -1,0 +1,1 @@
+import express from 'express';import { getRequests, createRequest, updateRequest, deleteRequest } from '../controllers/balanceRequestController';const router = express.Router();router.route('/').get(getRequests).post(createRequest);router.route('/:id').put(updateRequest).delete(deleteRequest);export default router;

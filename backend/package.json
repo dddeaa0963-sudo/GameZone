@@ -1,0 +1,32 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "PORT=4000 tsx src/server.ts",
+    "build": "esbuild src/server.ts --bundle --platform=node --format=cjs --outfile=dist/server.js --packages=external",
+    "start": "PORT=4000 node dist/server.js"
+  },
+  "dependencies": {
+    "axios": "^1.6.7",
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.6",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.1.5",
+    "mongoose": "^9.9.1",
+    "node-cron": "^4.6.0",
+    "node-telegram-bot-api": "^0.65.0",
+    "uuid": "^14.0.1",
+    "esbuild": "^0.20.1",
+    "tsx": "^4.7.1",
+    "typescript": "^5.2.2"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.0.0",
+    "@types/node-cron": "^3.0.11",
+    "@types/node-telegram-bot-api": "^0.64.15",
+    "@types/uuid": "^10.0.0"
+  }
+}
