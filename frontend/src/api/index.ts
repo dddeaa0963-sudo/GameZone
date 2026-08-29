@@ -1,5 +1,5 @@
-import axios from 'axios';
 import localforage from 'localforage';
+import axios from 'axios';
 import { API_BASE_URL } from '../config/api';
 
 const apiClient = axios.create({
@@ -134,7 +134,7 @@ export const getCategoriesDB = async () => {
 
 export const syncAllDataToDB = async (retryCount = 0) => {
     try {
-        const localforage = (await import('localforage')).default;
+        
         const categories = await localforage.getItem('categories') || [];
         const subCategories = await localforage.getItem('subCategories') || {};
         const subSubCategories = await localforage.getItem('subSubCategories') || {};
@@ -173,7 +173,7 @@ export const syncAllDataToDB = async (retryCount = 0) => {
 };
 
 export const saveCategoriesDB = async (categories: any[]) => {
-    const localforage = (await import("localforage")).default;
+    
     if (categories) await localforage.setItem("categories", categories);
     await syncAllDataToDB();
     return true;
@@ -192,9 +192,9 @@ export const deleteCategoryDB = async (id: number | string) => {
 export const getCategories = getCategoriesDB;
 
 export const getSubcategoriesDB = async (data?: any) => [];
-export const saveSubcategoriesDB = async (data?: any) => { const localforage = (await import("localforage")).default; if(data) await localforage.setItem("subCategories", data); await syncAllDataToDB(); return true; };
+export const saveSubcategoriesDB = async (data?: any) => {  if(data) await localforage.setItem("subCategories", data); await syncAllDataToDB(); return true; };
 export const getSubSubcategoriesDB = async (data?: any) => [];
-export const saveSubSubcategoriesDB = async (data?: any) => { const localforage = (await import("localforage")).default; if(data) await localforage.setItem("subSubCategories", data); await syncAllDataToDB(); return true; };
+export const saveSubSubcategoriesDB = async (data?: any) => {  if(data) await localforage.setItem("subSubCategories", data); await syncAllDataToDB(); return true; };
 
 export const getProductsDB = async () => {
     try {

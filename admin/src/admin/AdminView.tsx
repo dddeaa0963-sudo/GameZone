@@ -1,3 +1,4 @@
+import * as apiModule from '../api';
 import React from 'react';
 import { createPortal } from "react-dom";
 import localforage from 'localforage';
@@ -118,6 +119,8 @@ const AdminView: React.FC<AdminViewProps & { adminEmail?: string; setAdminEmail?
   const [showAddBannerModal, setShowAddBannerModal] = React.useState(false);
   const [editBannerModal, setEditBannerModal] = React.useState<{isOpen: boolean, banner: any}>({isOpen: false, banner: null});
   const [bannerConfirmModal, setBannerConfirmModal] = React.useState<{isOpen: boolean, bannerId: any}>({isOpen: false, bannerId: null});
+  const [editSecurityModal, setEditSecurityModal] = React.useState<{isOpen: boolean, userEmail: string, userId: string, password?: string, pin?: string}>({isOpen: false, userEmail: "", userId: ""});
+  const [sendUserNotificationModal, setSendUserNotificationModal] = React.useState<{isOpen: boolean, userEmail: string, userId: string, userName: string, title: string, message: string, alertType: string}>({isOpen: false, userEmail: "", userId: "", userName: "", title: "", message: "", alertType: "normal"});
   const [newBannerImage, setNewBannerImage] = React.useState('');
   const [newBannerLink, setNewBannerLink] = React.useState('');
     const [fetchProviderConfig, setFetchProviderConfig] = React.useState({
@@ -228,7 +231,7 @@ const AdminView: React.FC<AdminViewProps & { adminEmail?: string; setAdminEmail?
             {showAddBannerModal && createPortal(
         <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" dir="rtl">
           <div className="bg-white dark:bg-gray-900 rounded-3xl p-6 w-full max-w-md shadow-2xl relative">
-            <button onClick={() => {
+            <button onClick={async () => {
                   setShowAddBannerModal(false);
                   setNewBannerImage('');
                   setNewBannerLink('');
@@ -534,6 +537,7 @@ const AdminView: React.FC<AdminViewProps & { adminEmail?: string; setAdminEmail?
                           (u.login_id && u.login_id.toString() === adminUserSearch)
                         );
 
+
                         return filteredUsers && filteredUsers.length > 0 ? filteredUsers.map((u: any, idx: number) => {
                           const isExpanded = expandedUsers[u.email] || false;
                           
@@ -606,7 +610,7 @@ const AdminView: React.FC<AdminViewProps & { adminEmail?: string; setAdminEmail?
                             )}
 
                             <div className="flex flex-wrap sm:flex-nowrap justify-between gap-2 pt-4 border-t border-gray-100 dark:border-gray-800">
-                              <button onClick={() => {
+                              <button onClick={async () => {
                                 const users = getSafeFakeUsers();
                                 const index = users.findIndex((user: any) => user.email === u.email);
                                 if (index > -1) {
@@ -616,19 +620,19 @@ const AdminView: React.FC<AdminViewProps & { adminEmail?: string; setAdminEmail?
                                   showNotification('success', users[index].isActive ? 'تم تنشيط المستخدم' : 'تم إلغاء تنشيط المستخدم');
                                   setAdminView('dashboard'); setTimeout(() => setAdminView('users'), 0);
                                 }
-                              }} className={`flex-1 min-w-[80px] text-xs sm:text-sm py-2.5 rounded-xl font-bold transition-colors ${!u.isActive ? 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:hover:bg-emerald-500/20' : 'bg-gray-50 text-gray-600 dark:bg-gray-800 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'}`}>
+                             }} className={`flex-1 min-w-[80px] text-xs sm:text-sm py-2.5 rounded-xl font-bold transition-colors ${!u.isActive ? 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:hover:bg-emerald-500/20' : 'bg-gray-50 text-gray-600 dark:bg-gray-800 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'}`}>
                                 {!u.isActive ? 'تنشيط' : 'إلغاء التنشيط'}
                               </button>
                               
-                              <button onClick={() => {
+                              <button onClick={async () => {
                                 setEditSecurityModal({ isOpen: true, userEmail: u.email, userId: u.id || u._id, password: u.password || '', pin: u.pin || '' });
-                              }} className="flex-1 min-w-[80px] text-xs sm:text-sm bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400 py-2.5 rounded-xl font-bold hover:bg-amber-100 dark:hover:bg-amber-500/20 transition-colors">الأمان</button>
+                             }} className="flex-1 min-w-[80px] text-xs sm:text-sm bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400 py-2.5 rounded-xl font-bold hover:bg-amber-100 dark:hover:bg-amber-500/20 transition-colors">الأمان</button>
                               
-                              <button onClick={() => {
+                              <button onClick={async () => {
                                 setBalanceAdminModal({isOpen: true, userEmail: u.email, userName: u.name, type: 'add', amount: '', note: ''});
-                              }} className="flex-1 min-w-[80px] text-xs sm:text-sm bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400 py-2.5 rounded-xl font-bold hover:bg-blue-100 dark:hover:bg-blue-500/20 transition-colors">تعديل رصيد</button>
+                             }} className="flex-1 min-w-[80px] text-xs sm:text-sm bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400 py-2.5 rounded-xl font-bold hover:bg-blue-100 dark:hover:bg-blue-500/20 transition-colors">تعديل رصيد</button>
                               
-                              <button onClick={() => {
+                              <button onClick={async () => {
                                 if (!u.isBlocked) {
                                   setConfirmModal({
                                     isOpen: true,
@@ -658,11 +662,11 @@ const AdminView: React.FC<AdminViewProps & { adminEmail?: string; setAdminEmail?
                                     setAdminView('dashboard'); setTimeout(() => setAdminView('users'), 0);
                                   }
                                 }
-                              }} className={`flex-1 min-w-[80px] text-xs sm:text-sm py-2.5 rounded-xl font-bold transition-colors ${u.isBlocked ? 'bg-orange-50 text-orange-600 dark:bg-orange-500/10 dark:text-orange-400 hover:bg-orange-100 dark:hover:bg-orange-500/20' : 'bg-gray-50 text-gray-600 dark:bg-gray-800 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'}`}>
+                             }} className={`flex-1 min-w-[80px] text-xs sm:text-sm py-2.5 rounded-xl font-bold transition-colors ${u.isBlocked ? 'bg-orange-50 text-orange-600 dark:bg-orange-500/10 dark:text-orange-400 hover:bg-orange-100 dark:hover:bg-orange-500/20' : 'bg-gray-50 text-gray-600 dark:bg-gray-800 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'}`}>
                                 {u.isBlocked ? 'فك الحظر' : 'حظر'}
                               </button>
                               
-                              <button onClick={() => {
+                              <button onClick={async () => {
                                 setConfirmModal({
                                   isOpen: true,
                                   title: 'تأكيد الحذف',
@@ -671,7 +675,7 @@ const AdminView: React.FC<AdminViewProps & { adminEmail?: string; setAdminEmail?
                                     const users = (Array.isArray(getSafeFakeUsers()) ? getSafeFakeUsers() : []).filter((user: any) => user.email !== u.email);
                                     localStorage.setItem('fake_users', JSON.stringify(users));
                                     if (u.id) deleteUserDB(u.id);
-                                    
+                                        
                                     const newBalanceReqs = (Array.isArray(balanceRequests) ? balanceRequests : []).filter(req => req.userEmail !== u.email);
                                     setBalanceRequests(newBalanceReqs);
                                     localforage.setItem('balanceRequests', newBalanceReqs);
@@ -683,20 +687,19 @@ const AdminView: React.FC<AdminViewProps & { adminEmail?: string; setAdminEmail?
                                     setConfirmModal({...confirmModal, isOpen: false});
                                   }
                                 });
-                              }} className="flex-1 min-w-[80px] text-xs sm:text-sm bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400 py-2.5 rounded-xl font-bold hover:bg-red-100 dark:hover:bg-red-500/20 transition-colors">حذف</button>
+                             }} className="flex-1 min-w-[80px] text-xs sm:text-sm bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400 py-2.5 rounded-xl font-bold hover:bg-red-100 dark:hover:bg-red-500/20 transition-colors">حذف</button>
                               
-                              <button onClick={() => {
-                                const msg = prompt('أدخل نص الإشعار لحسابه:');
-                                if (msg) {
-                                  showNotification('success', `تم إرسال إشعار للمستخدم: ${u.name}`);
-                                }
-                              }} className="flex-1 min-w-[80px] text-xs sm:text-sm bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400 py-2.5 rounded-xl font-bold hover:bg-emerald-100 dark:hover:bg-emerald-500/20 transition-colors col-span-2 sm:col-span-1">إشعار</button>
+                              <button onClick={async () => {
+                                setSendUserNotificationModal({isOpen: true, userEmail: u.email, userId: u.id || u._id, userName: u.name, title: "", message: "", alertType: "normal"});
+                             }} className="flex-1 min-w-[80px] text-xs sm:text-sm bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400 py-2.5 rounded-xl font-bold hover:bg-emerald-100 dark:hover:bg-emerald-500/20 transition-colors col-span-2 sm:col-span-1">إشعار</button>
                             </div>
                           </div>
                         );
+
                         }) : (
                           <div className="py-12 text-center text-gray-700 font-bold bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700">لا يوجد مستخدمين مسجلين</div>
                         );
+
                       })()}
                     </div>
                     </div>
@@ -724,14 +727,14 @@ const AdminView: React.FC<AdminViewProps & { adminEmail?: string; setAdminEmail?
                            <div key={b.id || idx} className="relative rounded-2xl overflow-hidden border border-gray-200 h-32 group">
                              <img src={b.image} className="w-full h-full object-cover" />
                              <div className="absolute top-2 right-2 flex gap-2 transition-opacity">
-                               <button onClick={() => {
+                               <button onClick={async () => {
                                  setEditBannerModal({ isOpen: true, banner: b });
-                               }} className="bg-blue-600 text-white p-2 rounded-full shadow-md hover:bg-blue-700 transition-colors">
+                              }} className="bg-blue-600 text-white p-2 rounded-full shadow-md hover:bg-blue-700 transition-colors">
                                  <Edit className="w-4 h-4" />
                                </button>
-                               <button onClick={() => {
+                               <button onClick={async () => {
                                  setBannerConfirmModal({ isOpen: true, bannerId: b.id });
-                               }} className="bg-red-600 text-white p-2 rounded-full shadow-md hover:bg-red-700 transition-colors">
+                              }} className="bg-red-600 text-white p-2 rounded-full shadow-md hover:bg-red-700 transition-colors">
                                  <Trash2 className="w-4 h-4" />
                                </button>
                              </div>
@@ -748,7 +751,7 @@ const AdminView: React.FC<AdminViewProps & { adminEmail?: string; setAdminEmail?
                         <h2 className="text-xl sm:text-2xl font-bold text-gray-800 dark:text-white drop-shadow-sm flex items-center gap-2">
                            <Settings className="w-6 h-6 text-gray-500" /> إعدادات المنصة
                         </h2>
-                        <button onClick={() => {
+                        <button onClick={async () => {
                             saveSettingsDB({
                                 marqueeText: props.marqueeText,
                                 adminEmail: props.adminEmail,
@@ -789,7 +792,7 @@ const AdminView: React.FC<AdminViewProps & { adminEmail?: string; setAdminEmail?
                            <input type="text" value={props.marqueeText} onChange={e => {
                                props.setMarqueeText(e.target.value);
                                localStorage.setItem('marqueeText', e.target.value);
-                           }} className="w-full border border-gray-200 dark:border-gray-700 p-3 rounded-xl bg-gray-50 dark:bg-gray-900 dark:text-white" />
+                          }} className="w-full border border-gray-200 dark:border-gray-700 p-3 rounded-xl bg-gray-50 dark:bg-gray-900 dark:text-white" />
                         </div>
                         <div className="flex flex-col gap-4 mt-6">
                            <h3 className="text-lg font-bold text-gray-800 dark:text-white">بيانات الدخول للمسؤول:</h3>
@@ -798,14 +801,14 @@ const AdminView: React.FC<AdminViewProps & { adminEmail?: string; setAdminEmail?
                                <input type="email" value={props.adminEmail || ''} onChange={e => {
                                    props.setAdminEmail(e.target.value);
                                    localStorage.setItem('adminEmail', e.target.value);
-                               }} className="w-full border border-gray-200 dark:border-gray-700 p-3 rounded-xl bg-gray-50 dark:bg-gray-900 dark:text-white" />
+                              }} className="w-full border border-gray-200 dark:border-gray-700 p-3 rounded-xl bg-gray-50 dark:bg-gray-900 dark:text-white" />
                            </div>
                            <div>
                                <label className="text-gray-700 dark:text-gray-300 font-bold mb-2 block">كلمة المرور:</label>
                                <input type="text" value={props.adminPassword || ''} onChange={e => {
                                    props.setAdminPassword(e.target.value);
                                    localStorage.setItem('adminPassword', e.target.value);
-                               }} className="w-full border border-gray-200 dark:border-gray-700 p-3 rounded-xl bg-gray-50 dark:bg-gray-900 dark:text-white" />
+                              }} className="w-full border border-gray-200 dark:border-gray-700 p-3 rounded-xl bg-gray-50 dark:bg-gray-900 dark:text-white" />
                            </div>
                         </div>
 
@@ -820,7 +823,7 @@ const AdminView: React.FC<AdminViewProps & { adminEmail?: string; setAdminEmail?
                                            newOpts[idx].name = e.target.value;
                                            props.setFabOptions(newOpts);
                                            localStorage.setItem('fabOptions', JSON.stringify(newOpts));
-                                       }} className="w-full border border-gray-200 dark:border-gray-700 p-2 rounded-lg bg-white dark:bg-gray-800 dark:text-white text-sm" />
+                                         }} className="w-full border border-gray-200 dark:border-gray-700 p-2 rounded-lg bg-white dark:bg-gray-800 dark:text-white text-sm" />
                                    </div>
                                    <div className="md:col-span-1">
                                        <label className="text-xs text-gray-500 mb-1 block">الرابط (URL):</label>
@@ -829,7 +832,7 @@ const AdminView: React.FC<AdminViewProps & { adminEmail?: string; setAdminEmail?
                                            newOpts[idx].url = e.target.value;
                                            props.setFabOptions(newOpts);
                                            localStorage.setItem('fabOptions', JSON.stringify(newOpts));
-                                       }} className="w-full border border-gray-200 dark:border-gray-700 p-2 rounded-lg bg-white dark:bg-gray-800 dark:text-white text-sm" dir="ltr" />
+                                         }} className="w-full border border-gray-200 dark:border-gray-700 p-2 rounded-lg bg-white dark:bg-gray-800 dark:text-white text-sm" dir="ltr" />
                                    </div>
                                    <div className="md:col-span-1">
                                        <label className="text-xs text-gray-500 mb-1 block">النوع (أيقونة):</label>
@@ -838,7 +841,7 @@ const AdminView: React.FC<AdminViewProps & { adminEmail?: string; setAdminEmail?
                                            newOpts[idx].type = e.target.value;
                                            props.setFabOptions(newOpts);
                                            localStorage.setItem('fabOptions', JSON.stringify(newOpts));
-                                       }} className="w-full border border-gray-200 dark:border-gray-700 p-2 rounded-lg bg-white dark:bg-gray-800 dark:text-white text-sm">
+                                         }} className="w-full border border-gray-200 dark:border-gray-700 p-2 rounded-lg bg-white dark:bg-gray-800 dark:text-white text-sm">
                                            <option value="whatsapp">واتساب</option>
                                            <option value="whatsapp_group">مجموعة واتساب</option>
                                            <option value="facebook">فيسبوك</option>
@@ -847,22 +850,22 @@ const AdminView: React.FC<AdminViewProps & { adminEmail?: string; setAdminEmail?
                                        </select>
                                    </div>
                                    <div className="md:col-span-1">
-                                       <button onClick={() => {
+                                       <button onClick={async () => {
                                            const newOpts = [...props.fabOptions];
                                            newOpts.splice(idx, 1);
                                            props.setFabOptions(newOpts);
                                            localStorage.setItem('fabOptions', JSON.stringify(newOpts));
-                                       }} className="bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/40 p-2 rounded-lg transition-colors flex items-center justify-center gap-2 w-full text-sm font-bold">
+                                         }} className="bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/40 p-2 rounded-lg transition-colors flex items-center justify-center gap-2 w-full text-sm font-bold">
                                            <Trash2 className="w-4 h-4" /> حذف
                                        </button>
                                    </div>
                                </div>
                            ))}
-                           <button onClick={() => {
+                           <button onClick={async () => {
                                const newOpts = [...(props.fabOptions || []), { id: 'new_' + Date.now(), name: 'تواصل جديد', url: '', type: 'whatsapp' }];
                                props.setFabOptions(newOpts);
                                localStorage.setItem('fabOptions', JSON.stringify(newOpts));
-                           }} className="bg-blue-50 text-blue-600 hover:bg-blue-100 dark:bg-blue-900/20 dark:hover:bg-blue-900/40 p-3 rounded-xl transition-colors flex items-center justify-center gap-2 w-full font-bold mt-2">
+                          }} className="bg-blue-50 text-blue-600 hover:bg-blue-100 dark:bg-blue-900/20 dark:hover:bg-blue-900/40 p-3 rounded-xl transition-colors flex items-center justify-center gap-2 w-full font-bold mt-2">
                                <Plus className="w-5 h-5" /> إضافة خيار تواصل
                            </button>
                         </div>
@@ -881,10 +884,11 @@ const AdminView: React.FC<AdminViewProps & { adminEmail?: string; setAdminEmail?
                            <option value="normal">إشعار عادي (جرس الإشعارات)</option>
                            <option value="popup">تنبيه قوي (شاشة منبثقة)</option>
                         </select>
-                        <button onClick={() => {
+                        <button onClick={async () => {
                            if (!props.notificationForm.title || !props.notificationForm.message) return props.showNotification('error', 'يرجى تعبئة الحقول');
                            const newNotif = { title: props.notificationForm.title, message: props.notificationForm.message, date: new Date().toISOString(), read: false, type: 'global', alertType: props.notificationForm.alertType || 'normal' };
-                           import('../api/index.js').then(async api => {
+                           const api = apiModule;
+                           
                               if (api.saveGlobalNotificationDB) {
                                   const saved = await api.saveGlobalNotificationDB(newNotif);
                                   if (saved) {
@@ -893,11 +897,11 @@ const AdminView: React.FC<AdminViewProps & { adminEmail?: string; setAdminEmail?
                                       const allNotifs = [savedWithId, ...globalNotifs];
                                       localStorage.setItem('global_notifications', JSON.stringify(allNotifs));
                                       window.dispatchEvent(new Event('global_notifications_updated'));
-                                  }
+   
                               }
-                           });
                            props.setNotificationForm({ title: '', message: '', type: 'all', alertType: 'normal' });
                            props.showNotification('success', 'تم إرسال الإشعار بنجاح');
+                           }
                         }} className="bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition-colors">إرسال</button>
                     </div>
                   </div>
@@ -907,7 +911,7 @@ const AdminView: React.FC<AdminViewProps & { adminEmail?: string; setAdminEmail?
                        <h2 className="text-xl sm:text-2xl font-bold text-gray-800 dark:text-white drop-shadow-sm flex items-center gap-2">
                           <CreditCard className="w-6 h-6 text-blue-500" /> طرق الدفع
                        </h2>
-                       <button onClick={() => {
+                       <button onClick={async () => {
                           props.setNewPaymentMethodForm({ id: null, name: '', info: '', link: '', note: '', image: null, minDeposit: '', qrCode: null });
                           props.setAddPaymentMethodModal(true);
                        }} className="bg-blue-600 text-white px-4 py-2 rounded-xl font-bold">إضافة طريقة</button>
@@ -923,17 +927,15 @@ const AdminView: React.FC<AdminViewProps & { adminEmail?: string; setAdminEmail?
                                  </div>
                               </div>
                               <div className="flex items-center gap-2">
-                                <button onClick={() => {
+                                <button onClick={async () => {
                                    props.setNewPaymentMethodForm({ id: pm.id, name: pm.name || '', info: pm.info || '', link: pm.link || '', note: pm.note || '', image: pm.image || null, minDeposit: pm.minDeposit || '', qrCode: pm.qrCode || null });
-                                   props.setAddPaymentMethodModal(true);
-                                }} className="bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 p-2 rounded-lg hover:bg-blue-100 transition-colors"><Edit className="w-5 h-5"/></button>
-                                <button onClick={() => {
+                                   props.setAddPaymentMethodModal(true);                                  }} className="bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 p-2 rounded-lg hover:bg-blue-100 transition-colors"><Edit className="w-5 h-5"/></button>
+                                <button onClick={async () => {
                                  deletePaymentMethodDB(pm.id || pm._id).catch(() => {});
                                  const newPM = props.paymentMethods.filter((x: any) => x.id !== pm.id && x._id !== pm._id);
                                  props.setPaymentMethods(newPM);
                                  localStorage.setItem('paymentMethods', JSON.stringify(newPM));
-                                 props.showNotification('success', 'تم الحذف');
-                                }} className="bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 p-2 rounded-lg hover:bg-red-100 transition-colors"><Trash2 className="w-5 h-5"/></button>
+                                 props.showNotification('success', 'تم الحذف');                                  }} className="bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 p-2 rounded-lg hover:bg-red-100 transition-colors"><Trash2 className="w-5 h-5"/></button>
                               </div>
                            </div>
                         ))}
@@ -949,13 +951,13 @@ const AdminView: React.FC<AdminViewProps & { adminEmail?: string; setAdminEmail?
                         إدارة الطلبات
                       </h2>
                       <div className="flex items-center gap-2 text-sm bg-white/50 dark:bg-gray-800/50 backdrop-blur-md p-1.5 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm">
-                        <button onClick={() => {
+                        <button onClick={async () => {
                           setOrderProcessingMode('immediate');
                           localStorage.setItem('orderProcessingMode', 'immediate');
                           saveSettingsDB({ orderProcessingMode: 'immediate' });
                           showNotification('success', 'تم تفعيل المعالجة الفورية المباشرة لـ API');
                         }} className={`px-4 py-2 rounded-xl font-bold transition-all ${orderProcessingMode === 'immediate' ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-md shadow-blue-500/20' : 'text-gray-700 hover:text-gray-900 dark:hover:text-white'}`}>فوري (API)</button>
-                        <button onClick={() => {
+                        <button onClick={async () => {
                           setOrderProcessingMode('manual');
                           localStorage.setItem('orderProcessingMode', 'manual');
                           saveSettingsDB({ orderProcessingMode: 'manual' });
@@ -1028,16 +1030,19 @@ const AdminView: React.FC<AdminViewProps & { adminEmail?: string; setAdminEmail?
                                               method: 'PUT',
                                               headers: { 'Content-Type': 'application/json' }
                                             });
+    
                                             if(res.ok) {
                                                const updatedOrder = await res.json();
                                                showNotification('success', 'تمت مزامنة حالة الطلب مع المزود');
                                                setOrders((prev: any) => prev.map((o: any) => (o.id === order.id || o._id === order._id) ? {...o, ...updatedOrder} : o));
-                                            } else {
+                                            }
+                                            else {
                                                const err = await res.json();
                                                showNotification('error', `فشل المزامنة: ${err.message || ''}`);
                                             }
                                           } catch(e) {
                                             showNotification('error', 'خطأ في الاتصال');
+           
                                           }
                                         }} className="w-full mt-2 text-sm bg-purple-600 text-white hover:bg-purple-700 py-2.5 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors">
                                           <RefreshCw className="w-4 h-4" /> تحديث من المزود
@@ -1051,15 +1056,18 @@ const AdminView: React.FC<AdminViewProps & { adminEmail?: string; setAdminEmail?
                                               headers: { 'Content-Type': 'application/json' },
                                               body: JSON.stringify({ action: 'send_to_api' })
                                             });
+    
                                             if(res.ok) {
                                                const updatedOrder = await res.json();
                                                showNotification('success', 'تم إرسال الطلب ومزامنة الرد بنجاح');
                                                setOrders((prev: any) => prev.map((o: any) => (o.id === order.id || o._id === order._id) ? {...o, ...updatedOrder} : o));
-                                            } else {
+                                            }
+                                            else {
                                                showNotification('error', 'فشل إرسال الطلب إلى المزود');
                                             }
                                           } catch(e) {
                                             showNotification('error', 'خطأ في الاتصال');
+           
                                           }
                                         }} className="w-full mt-2 text-sm bg-blue-600 text-white hover:bg-blue-700 py-2.5 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors">
                                           إرسال إلى المزود (API)
@@ -1139,8 +1147,8 @@ const AdminView: React.FC<AdminViewProps & { adminEmail?: string; setAdminEmail?
                                   onClick={() => {
                                     const details = document.getElementById(`details-${(req._id || req.id) || idx}`);
                                     if (details) details.classList.toggle('hidden');
-                                  }}
-                                  className="w-full text-sm bg-blue-50 text-blue-600 hover:bg-blue-100 dark:bg-blue-500/10 dark:text-blue-400 dark:hover:bg-blue-500/20 py-2.5 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors border border-blue-100 dark:border-blue-500/20"
+                                    }}
+                                    className="w-full text-sm bg-blue-50 text-blue-600 hover:bg-blue-100 dark:bg-blue-500/10 dark:text-blue-400 dark:hover:bg-blue-500/20 py-2.5 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors border border-blue-100 dark:border-blue-500/20"
                                 >
                                   <Eye className="w-4 h-4" /> تفاصيل التحويل
                                 </button>
@@ -1172,7 +1180,7 @@ const AdminView: React.FC<AdminViewProps & { adminEmail?: string; setAdminEmail?
                           <div className="border-t border-gray-100 dark:border-gray-800 pt-4 flex flex-wrap gap-3 mt-4 mx-4">
                             {req.status === 'processing' && (
                               <>
-                                <button onClick={() => {
+                                <button onClick={async () => {
                                     setConfirmModal({
                                         isOpen: true,
                                         title: 'قبول الدفعة',
@@ -1193,33 +1201,119 @@ const AdminView: React.FC<AdminViewProps & { adminEmail?: string; setAdminEmail?
                                                 
                                                 if (currentUser?.email === req.userEmail) {
                                                     setCurrentUser({...currentUser, balance: users[userIndex].balance});
-                                                }
+                 
 
-                                                import('../api/index.js').then(api => {
+                                                Promise.resolve(apiModule).then(api => {
                                                     if (users[userIndex].id) {
                                                         // api.updateUser(users[userIndex].id, { balance: users[userIndex].balance }).catch(() => {});
-                                                    }
+                     
                                                     if (req._id || req.id) {
                                                         api.updateBalanceRequestDB(req._id || req.id, { status: 'accepted' }).catch(() => {});
-                                                    }
-                                                });
-                                            }
+                     
+                                             }
+
+             
                                             showNotification('success', 'تم قبول الدفعة وإضافة الرصيد لحساب العميل');
                                             setConfirmModal({...confirmModal, isOpen: false});
-                                        }
-                                    });
-                                }} className="bg-emerald-100 text-emerald-700 hover:bg-emerald-200 dark:bg-emerald-900/40 dark:text-emerald-400 dark:hover:bg-emerald-800/60 px-4 py-2 rounded-xl font-bold flex-1 transition-colors text-sm">قبول وإضافة الرصيد</button>
+         
+     );                                  }} className="bg-emerald-100 text-emerald-700 hover:bg-emerald-200 dark:bg-emerald-900/40 dark:text-emerald-400 dark:hover:bg-emerald-800/60 px-4 py-2 rounded-xl font-bold flex-1 transition-colors text-sm">قبول وإضافة الرصيد</button>
                                 
-                                <button onClick={() => {
+                                <button onClick={async () => {
                                     setRejectModal({
                                         isOpen: true,
                                         idx,
                                         note: ''
-                                    });
-                                }} className="bg-orange-100 text-orange-700 hover:bg-orange-200 dark:bg-orange-900/40 dark:text-orange-400 dark:hover:bg-orange-800/60 px-4 py-2 rounded-xl font-bold flex-1 transition-colors text-sm">رفض الدفعة</button>
+     );                                  }} className="bg-orange-100 text-orange-700 hover:bg-orange-200 dark:bg-orange-900/40 dark:text-orange-400 dark:hover:bg-orange-800/60 px-4 py-2 rounded-xl font-bold flex-1 transition-colors text-sm">رفض الدفعة</button>
+{editSecurityModal.isOpen && createPortal(
+  <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
+    <div className="bg-white dark:bg-gray-800 p-6 sm:p-8 rounded-[2rem] w-full max-w-md shadow-2xl relative">
+      <button onClick={() => setEditSecurityModal({...editSecurityModal, isOpen: false})} className="absolute top-4 left-4 p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 bg-gray-100 dark:bg-gray-700 rounded-full transition-colors">
+        <X className="w-5 h-5" />
+      </button>
+      <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white flex items-center gap-3">
+        <Shield className="w-7 h-7 text-amber-500" />
+        تعديل بيانات الأمان
+      </h2>
+      <div className="space-y-4">
+        <div>
+          <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">كلمة المرور</label>
+          <input type="text" value={editSecurityModal.password} onChange={e => setEditSecurityModal({...editSecurityModal, password: e.target.value})} className="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-amber-500 dark:text-white" />
+        </div>
+        <div>
+          <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">رمز الأمان (PIN)</label>
+          <input type="text" value={editSecurityModal.pin} onChange={e => setEditSecurityModal({...editSecurityModal, pin: e.target.value})} className="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-amber-500 dark:text-white" />
+        </div>
+        <button onClick={() => {
+           const users = getSafeFakeUsers();
+           const index = users.findIndex((u: any) => u.email === editSecurityModal.userEmail);
+           if (index > -1) {
+             users[index].password = editSecurityModal.password;
+             users[index].pin = editSecurityModal.pin;
+             localStorage.setItem('fake_users', JSON.stringify(users));
+             if (editSecurityModal.userId) {
+               updateUserDB(editSecurityModal.userId, { password: editSecurityModal.password, pin: editSecurityModal.pin }).catch(()=>{});
+             }
+             showNotification('success', 'تم تعديل بيانات الأمان بنجاح');
+             setEditSecurityModal({ isOpen: false, userEmail: '', userId: '' });
+           }
+        }} className="w-full bg-amber-500 text-white font-bold py-3 rounded-xl mt-4 hover:bg-amber-600 transition-colors shadow-lg shadow-amber-500/30">
+           حفظ التعديلات
+        </button>
+      </div>
+    </div>
+  </div>, document.body
+)}
+
+{sendUserNotificationModal.isOpen && createPortal(
+  <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
+    <div className="bg-white dark:bg-gray-800 p-6 sm:p-8 rounded-[2rem] w-full max-w-md shadow-2xl relative">
+      <button onClick={() => setSendUserNotificationModal({...sendUserNotificationModal, isOpen: false})} className="absolute top-4 left-4 p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 bg-gray-100 dark:bg-gray-700 rounded-full transition-colors">
+        <X className="w-5 h-5" />
+      </button>
+      <h2 className="text-2xl font-bold mb-2 text-gray-800 dark:text-white flex items-center gap-3">
+        <Bell className="w-7 h-7 text-emerald-500" />
+        إرسال إشعار
+      </h2>
+      <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">للمستخدم: {sendUserNotificationModal.userName}</p>
+      
+      <div className="space-y-4">
+        <div>
+          <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">عنوان الإشعار</label>
+          <input type="text" value={sendUserNotificationModal.title} onChange={e => setSendUserNotificationModal({...sendUserNotificationModal, title: e.target.value})} className="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500 dark:text-white" />
+        </div>
+        <div>
+          <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">نص الإشعار</label>
+          <textarea value={sendUserNotificationModal.message} onChange={e => setSendUserNotificationModal({...sendUserNotificationModal, message: e.target.value})} className="w-full h-24 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500 dark:text-white"></textarea>
+        </div>
+        <div>
+          <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">نوع الإشعار</label>
+          <select value={sendUserNotificationModal.alertType} onChange={e => setSendUserNotificationModal({...sendUserNotificationModal, alertType: e.target.value})} className="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500 dark:text-white">
+            <option value="normal">إشعار عادي (جرس الإشعارات)</option>
+            <option value="popup">تنبيه قوي (شاشة منبثقة)</option>
+          </select>
+        </div>
+        <button onClick={async () => {
+           if (!sendUserNotificationModal.title || !sendUserNotificationModal.message) return showNotification('error', 'يرجى تعبئة الحقول');
+           const newNotif = { title: sendUserNotificationModal.title, message: sendUserNotificationModal.message, date: new Date().toISOString(), read: false, type: 'personal', targetUser: sendUserNotificationModal.userEmail, alertType: sendUserNotificationModal.alertType };
+           
+           const api = apiModule;
+           if (api.saveNotificationDB) {
+             const saved = await api.saveNotificationDB(newNotif);
+             if (saved) {
+               showNotification('success', 'تم إرسال الإشعار بنجاح');
+               setSendUserNotificationModal({ isOpen: false, userEmail: '', userId: '', userName: '', title: '', message: '', alertType: 'normal' });
+             }
+           }
+        }} className="w-full bg-emerald-500 text-white font-bold py-3 rounded-xl mt-4 hover:bg-emerald-600 transition-colors shadow-lg shadow-emerald-500/30">
+           إرسال الإشعار
+        </button>
+      </div>
+    </div>
+  </div>, document.body
+)}
                               </>
                             )}
-                            <button onClick={() => {
+                            <button onClick={async () => {
                                 setConfirmModal({
                                     isOpen: true,
                                     title: 'تأكيد الحذف',
@@ -1230,16 +1324,16 @@ const AdminView: React.FC<AdminViewProps & { adminEmail?: string; setAdminEmail?
                                         newReqs.splice(idx, 1);
                                         setBalanceRequests(newReqs);
                                         localforage.setItem('balanceRequests', newReqs);
-                                        import('../api/index.js').then(api => {
+                                        Promise.resolve(apiModule).then(api => {
                                             if (deletedReq.id || deletedReq._id) {
                                                 api.deleteBalanceRequestDB(deletedReq.id || deletedReq._id).catch(() => {});
-                                            }
-                                        });
+             
+         );
                                         showNotification('success', 'تم حذف الدفعة بنجاح');
                                         setConfirmModal({...confirmModal, isOpen: false});
-                                    }
-                                });
-                            }} className="bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-900/20 dark:text-red-400 px-4 py-2 rounded-xl font-bold transition-colors text-sm shrink-0">
+     
+ );
+                           }} className="bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-900/20 dark:text-red-400 px-4 py-2 rounded-xl font-bold transition-colors text-sm shrink-0">
                                 <Trash2 className="w-4 h-4 mx-auto" />
                             </button>
                           </div>
@@ -1266,38 +1360,38 @@ const AdminView: React.FC<AdminViewProps & { adminEmail?: string; setAdminEmail?
                         <PlusCircle className="w-6 h-6 text-blue-500" /> إضافة سريع
                       </h3>
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
-                        <button onClick={() => { setAdminFabOpen(false); setAdminView('categories'); setTimeout(() => window.dispatchEvent(new CustomEvent('OPEN_ADD_MAIN_CAT')), 100); }} className="flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-dashed border-indigo-200 dark:border-indigo-500/30 hover:border-indigo-400 dark:hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 transition-colors gap-2 text-indigo-700 dark:text-indigo-400 font-bold group">
+                        <button onClick={async () => { setAdminFabOpen(false); setAdminView('categories'); setTimeout(() => window.dispatchEvent(new CustomEvent('OPEN_ADD_MAIN_CAT')), 100); }} className="flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-dashed border-indigo-200 dark:border-indigo-500/30 hover:border-indigo-400 dark:hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 transition-colors gap-2 text-indigo-700 dark:text-indigo-400 font-bold group">
                            <Layers className="w-8 h-8 group-hover:scale-110 transition-transform" />
                            <span className="text-sm">قسم رئيسي</span>
                         </button>
                         
-                        <button onClick={() => { setAdminFabOpen(false); setAdminView('categories'); setTimeout(() => window.dispatchEvent(new CustomEvent('OPEN_ADD_SUB_CAT')), 100); }} className="flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-dashed border-cyan-200 dark:border-cyan-500/30 hover:border-cyan-400 dark:hover:border-cyan-500 hover:bg-cyan-50 dark:hover:bg-cyan-500/10 transition-colors gap-2 text-cyan-700 dark:text-cyan-400 font-bold group">
+                        <button onClick={async () => { setAdminFabOpen(false); setAdminView('categories'); setTimeout(() => window.dispatchEvent(new CustomEvent('OPEN_ADD_SUB_CAT')), 100); }} className="flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-dashed border-cyan-200 dark:border-cyan-500/30 hover:border-cyan-400 dark:hover:border-cyan-500 hover:bg-cyan-50 dark:hover:bg-cyan-500/10 transition-colors gap-2 text-cyan-700 dark:text-cyan-400 font-bold group">
                            <Layers className="w-8 h-8 group-hover:scale-110 transition-transform" />
                            <span className="text-sm">قسم فرعي</span>
                         </button>
 
-                        <button onClick={() => { setAdminFabOpen(false); setAdminView('categories'); setTimeout(() => window.dispatchEvent(new CustomEvent('OPEN_ADD_SUB_SUB_CAT')), 100); }} className="flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-dashed border-teal-200 dark:border-teal-500/30 hover:border-teal-400 dark:hover:border-teal-500 hover:bg-teal-50 dark:hover:bg-teal-500/10 transition-colors gap-2 text-teal-700 dark:text-teal-400 font-bold group">
+                        <button onClick={async () => { setAdminFabOpen(false); setAdminView('categories'); setTimeout(() => window.dispatchEvent(new CustomEvent('OPEN_ADD_SUB_SUB_CAT')), 100); }} className="flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-dashed border-teal-200 dark:border-teal-500/30 hover:border-teal-400 dark:hover:border-teal-500 hover:bg-teal-50 dark:hover:bg-teal-500/10 transition-colors gap-2 text-teal-700 dark:text-teal-400 font-bold group">
                            <Layers className="w-8 h-8 group-hover:scale-110 transition-transform" />
                            <span className="text-sm text-center">قسم فرع فرعي</span>
                         </button>
                         
-                        <button onClick={() => { setAdminFabOpen(false); setAdminView('products'); setTimeout(() => window.dispatchEvent(new CustomEvent('OPEN_ADD_PRODUCT')), 100); }} className="flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-dashed border-emerald-200 dark:border-emerald-500/30 hover:border-emerald-400 dark:hover:border-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 transition-colors gap-2 text-emerald-700 dark:text-emerald-400 font-bold group">
+                        <button onClick={async () => { setAdminFabOpen(false); setAdminView('products'); setTimeout(() => window.dispatchEvent(new CustomEvent('OPEN_ADD_PRODUCT')), 100); }} className="flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-dashed border-emerald-200 dark:border-emerald-500/30 hover:border-emerald-400 dark:hover:border-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 transition-colors gap-2 text-emerald-700 dark:text-emerald-400 font-bold group">
                            <Package className="w-8 h-8 group-hover:scale-110 transition-transform" />
                            <span className="text-sm">إضافة منتج</span>
                         </button>
-                        <button onClick={() => { setAdminFabOpen(false); setNewPaymentMethodForm({ id: null, name: '', info: '', link: '', note: '', image: null, minDeposit: '', qrCode: null }); setAddPaymentMethodModal(true); }} className="flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-dashed border-orange-200 dark:border-orange-500/30 hover:border-orange-400 dark:hover:border-orange-500 hover:bg-orange-50 dark:hover:bg-orange-500/10 transition-colors gap-2 text-orange-700 dark:text-orange-400 font-bold group">
+                        <button onClick={async () => { setAdminFabOpen(false); setNewPaymentMethodForm({ id: null, name: '', info: '', link: '', note: '', image: null, minDeposit: '', qrCode: null }); setAddPaymentMethodModal(true); }} className="flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-dashed border-orange-200 dark:border-orange-500/30 hover:border-orange-400 dark:hover:border-orange-500 hover:bg-orange-50 dark:hover:bg-orange-500/10 transition-colors gap-2 text-orange-700 dark:text-orange-400 font-bold group">
                            <CreditCard className="w-8 h-8 group-hover:scale-110 transition-transform" />
                            <span className="text-sm">طريقة دفع</span>
                         </button>
-                        <button onClick={() => { setAdminFabOpen(false); setAdminView('banners'); }} className="flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-dashed border-purple-200 dark:border-purple-500/30 hover:border-purple-400 dark:hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-purple-500/10 transition-colors gap-2 text-purple-700 dark:text-purple-400 font-bold group">
+                        <button onClick={async () => { setAdminFabOpen(false); setAdminView('banners'); }} className="flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-dashed border-purple-200 dark:border-purple-500/30 hover:border-purple-400 dark:hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-purple-500/10 transition-colors gap-2 text-purple-700 dark:text-purple-400 font-bold group">
                            <ImageIcon className="w-8 h-8 group-hover:scale-110 transition-transform" />
                            <span className="text-sm">إضافة بانر</span>
                         </button>
-                        <button onClick={() => { props.setAdminFabOpen(false); props.setAdminView('fetch-provider'); }} className="flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-dashed border-rose-200 dark:border-rose-500/30 hover:border-rose-400 dark:hover:border-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors gap-2 text-rose-700 dark:text-rose-400 font-bold group">
+                        <button onClick={async () => { props.setAdminFabOpen(false); props.setAdminView('fetch-provider'); }} className="flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-dashed border-rose-200 dark:border-rose-500/30 hover:border-rose-400 dark:hover:border-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors gap-2 text-rose-700 dark:text-rose-400 font-bold group">
                            <RefreshCw className="w-8 h-8 group-hover:scale-110 transition-transform" />
                            <span className="text-sm text-center">جلب منتج من المزود</span>
                         </button>
-                        <button onClick={() => { setAdminFabOpen(false); setAdminView('notifications'); }} className="flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-dashed border-blue-200 dark:border-blue-500/30 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-500/10 transition-colors gap-2 text-blue-700 dark:text-blue-400 font-bold col-span-2 group">
+                        <button onClick={async () => { setAdminFabOpen(false); setAdminView('notifications'); }} className="flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-dashed border-blue-200 dark:border-blue-500/30 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-500/10 transition-colors gap-2 text-blue-700 dark:text-blue-400 font-bold col-span-2 group">
                            <Bell className="w-8 h-8 group-hover:scale-110 transition-transform" />
                            <span className="text-sm">إرسال إشعار</span>
                         </button>
@@ -1361,7 +1455,7 @@ const AdminView: React.FC<AdminViewProps & { adminEmail?: string; setAdminEmail?
 {editBannerModal.isOpen && createPortal(
   <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" dir="rtl">
     <div className="bg-white dark:bg-gray-900 rounded-3xl p-6 w-full max-w-md shadow-2xl relative">
-      <button onClick={() => {
+      <button onClick={async () => {
             setEditBannerModal({isOpen: false, banner: null});
           }} className="absolute top-4 left-4 p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 bg-gray-100 dark:bg-gray-800 rounded-full transition-colors">
         <X className="w-5 h-5" />
@@ -1390,7 +1484,7 @@ const AdminView: React.FC<AdminViewProps & { adminEmail?: string; setAdminEmail?
               setEditBannerModal({ ...editBannerModal, banner: { ...editBannerModal.banner, link: e.target.value } });
            }} placeholder="https://..." className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white text-left" dir="ltr" />
         </div>
-        <button onClick={() => {
+        <button onClick={async () => {
            if(!editBannerModal.banner?.image) {
               props.showNotification('error', 'يرجى اختيار صورة للبانر');
               return;
@@ -1416,7 +1510,7 @@ const AdminView: React.FC<AdminViewProps & { adminEmail?: string; setAdminEmail?
       <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">تأكيد الحذف</h3>
       <p className="text-gray-600 dark:text-gray-400 mb-6">هل أنت متأكد من حذف هذا البانر نهائياً؟ سيتم إزالته من قاعدة البيانات والواجهة الرئيسية.</p>
       <div className="flex gap-3">
-        <button onClick={() => {
+        <button onClick={async () => {
            const newBanners = props.bannersConfig.filter((bx: any) => bx.id !== bannerConfirmModal.bannerId);
            props.setBannersConfig(newBanners);
            localStorage.setItem('bannersConfig', JSON.stringify(newBanners));
@@ -1433,6 +1527,93 @@ const AdminView: React.FC<AdminViewProps & { adminEmail?: string; setAdminEmail?
     </div>
   </div>
 , document.body)}
+{editSecurityModal.isOpen && createPortal(
+  <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
+    <div className="bg-white dark:bg-gray-800 p-6 sm:p-8 rounded-[2rem] w-full max-w-md shadow-2xl relative">
+      <button onClick={() => setEditSecurityModal({...editSecurityModal, isOpen: false})} className="absolute top-4 left-4 p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 bg-gray-100 dark:bg-gray-700 rounded-full transition-colors">
+        <X className="w-5 h-5" />
+      </button>
+      <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white flex items-center gap-3">
+        <Shield className="w-7 h-7 text-amber-500" />
+        تعديل بيانات الأمان
+      </h2>
+      <div className="space-y-4">
+        <div>
+          <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">كلمة المرور</label>
+          <input type="text" value={editSecurityModal.password} onChange={e => setEditSecurityModal({...editSecurityModal, password: e.target.value})} className="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-amber-500 dark:text-white" />
+        </div>
+        <div>
+          <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">رمز الأمان (PIN)</label>
+          <input type="text" value={editSecurityModal.pin} onChange={e => setEditSecurityModal({...editSecurityModal, pin: e.target.value})} className="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-amber-500 dark:text-white" />
+        </div>
+        <button onClick={() => {
+           const users = getSafeFakeUsers();
+           const index = users.findIndex((u: any) => u.email === editSecurityModal.userEmail);
+           if (index > -1) {
+             users[index].password = editSecurityModal.password;
+             users[index].pin = editSecurityModal.pin;
+             localStorage.setItem('fake_users', JSON.stringify(users));
+             if (editSecurityModal.userId) {
+               updateUserDB(editSecurityModal.userId, { password: editSecurityModal.password, pin: editSecurityModal.pin }).catch(()=>{});
+             }
+             showNotification('success', 'تم تعديل بيانات الأمان بنجاح');
+             setEditSecurityModal({ isOpen: false, userEmail: '', userId: '' });
+           }
+        }} className="w-full bg-amber-500 text-white font-bold py-3 rounded-xl mt-4 hover:bg-amber-600 transition-colors shadow-lg shadow-amber-500/30">
+           حفظ التعديلات
+        </button>
+      </div>
+    </div>
+  </div>, document.body
+)}
+
+{sendUserNotificationModal.isOpen && createPortal(
+  <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
+    <div className="bg-white dark:bg-gray-800 p-6 sm:p-8 rounded-[2rem] w-full max-w-md shadow-2xl relative">
+      <button onClick={() => setSendUserNotificationModal({...sendUserNotificationModal, isOpen: false})} className="absolute top-4 left-4 p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 bg-gray-100 dark:bg-gray-700 rounded-full transition-colors">
+        <X className="w-5 h-5" />
+      </button>
+      <h2 className="text-2xl font-bold mb-2 text-gray-800 dark:text-white flex items-center gap-3">
+        <Bell className="w-7 h-7 text-emerald-500" />
+        إرسال إشعار
+      </h2>
+      <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">للمستخدم: {sendUserNotificationModal.userName}</p>
+      
+      <div className="space-y-4">
+        <div>
+          <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">عنوان الإشعار</label>
+          <input type="text" value={sendUserNotificationModal.title} onChange={e => setSendUserNotificationModal({...sendUserNotificationModal, title: e.target.value})} className="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500 dark:text-white" />
+        </div>
+        <div>
+          <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">نص الإشعار</label>
+          <textarea value={sendUserNotificationModal.message} onChange={e => setSendUserNotificationModal({...sendUserNotificationModal, message: e.target.value})} className="w-full h-24 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500 dark:text-white"></textarea>
+        </div>
+        <div>
+          <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">نوع الإشعار</label>
+          <select value={sendUserNotificationModal.alertType} onChange={e => setSendUserNotificationModal({...sendUserNotificationModal, alertType: e.target.value})} className="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-500 dark:text-white">
+            <option value="normal">إشعار عادي (جرس الإشعارات)</option>
+            <option value="popup">تنبيه قوي (شاشة منبثقة)</option>
+          </select>
+        </div>
+        <button onClick={async () => {
+           if (!sendUserNotificationModal.title || !sendUserNotificationModal.message) return showNotification('error', 'يرجى تعبئة الحقول');
+           const newNotif = { title: sendUserNotificationModal.title, message: sendUserNotificationModal.message, date: new Date().toISOString(), read: false, type: 'personal', targetUser: sendUserNotificationModal.userEmail, alertType: sendUserNotificationModal.alertType };
+           
+           const api = apiModule;
+           if (api.saveNotificationDB) {
+             const saved = await api.saveNotificationDB(newNotif);
+             if (saved) {
+               showNotification('success', 'تم إرسال الإشعار بنجاح');
+               setSendUserNotificationModal({ isOpen: false, userEmail: '', userId: '', userName: '', title: '', message: '', alertType: 'normal' });
+             }
+           }
+        }} className="w-full bg-emerald-500 text-white font-bold py-3 rounded-xl mt-4 hover:bg-emerald-600 transition-colors shadow-lg shadow-emerald-500/30">
+           إرسال الإشعار
+        </button>
+      </div>
+    </div>
+  </div>, document.body
+)}
     </>
   );
 };

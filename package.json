@@ -9,6 +9,10 @@
     "build:cwp": "npm run build && mkdir -p deploy_cwp/backend deploy_cwp/frontend && cp -r backend/dist backend/package.json backend/package-lock.json deploy_cwp/backend/ && cp -r frontend/dist deploy_cwp/frontend/ && cd deploy_cwp && zip -r deploy.zip ."
   },
   "dependencies": {
+    "mongoose": "^9.9.4",
     "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "puppeteer": "^25.9.0"
   }
 }

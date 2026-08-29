@@ -21,26 +21,17 @@ export const getSettings = async (req: Request, res: Response) => {
 
 export const updateSettings = async (req: Request, res: Response) => {
   try {
-    let setting = await Setting.findById('global');
-    if (setting) {
-      Object.assign(setting, req.body);
-      await setting.save();
-      const data = setting.toObject();
-      delete data._id;
-      delete data.__v;
-      delete data.createdAt;
-      delete data.updatedAt;
-      res.json(data);
-    } else {
-      const newSetting = new Setting({ _id: 'global', ...req.body });
-      await newSetting.save();
-      const data = newSetting.toObject();
-      delete data._id;
-      delete data.__v;
-      delete data.createdAt;
-      delete data.updatedAt;
-      res.status(201).json(data);
-    }
+    const setting = await Setting.findByIdAndUpdate(
+      'global',
+      { $set: req.body },
+      { new: true, upsert: true }
+    );
+    const data = setting.toObject();
+    delete data._id;
+    delete data.__v;
+    delete data.createdAt;
+    delete data.updatedAt;
+    res.json(data);
   } catch (error: any) {
     res.status(400).json({ message: error.message });
   }

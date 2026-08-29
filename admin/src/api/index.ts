@@ -1,5 +1,5 @@
-import axios from 'axios';
 import localforage from 'localforage';
+import axios from 'axios';
 import { API_BASE_URL } from '../config/api';
 
 const apiClient = axios.create({
@@ -134,7 +134,7 @@ export const getCategoriesDB = async () => {
 
 export const syncAllDataToDB = async (retryCount = 0) => {
     try {
-        const localforage = (await import('localforage')).default;
+        
         const categories = await localforage.getItem('categories') || [];
         const subCategories = await localforage.getItem('subCategories') || {};
         const subSubCategories = await localforage.getItem('subSubCategories') || {};

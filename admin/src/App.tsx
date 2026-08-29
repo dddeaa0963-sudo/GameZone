@@ -1,3 +1,4 @@
+import * as apiModule from './api';
 import { motion, AnimatePresence } from 'motion/react';
 import AdminView from './admin/AdminView';
 
@@ -473,7 +474,7 @@ export default function App() {
           }
           // Mark as read in global state
           const updatedReadBy = [...(n.readBy || []), currentUser.email];
-          import('./api/index.js').then(api => {
+          Promise.resolve(apiModule).then(api => {
              if (api.updateGlobalNotificationDB) {
                 if (typeof n.id === 'string' && /^[a-f\d]{24}$/i.test(n.id)) {
                     api.updateGlobalNotificationDB(n.id, { readBy: updatedReadBy }).catch(() => {});
@@ -510,7 +511,7 @@ export default function App() {
           }
         } else if (currentUser.id) {
           // If not in fake_users but is a DB user, query it
-          import('./api/index.js').then(api => {
+          Promise.resolve(apiModule).then(api => {
             api.getUserById(currentUser.id).then(dbProfile => {
                if (dbProfile && dbProfile.notFound) {
                    localStorage.removeItem('currentUser');
@@ -678,7 +679,7 @@ export default function App() {
   ]);
 
   useEffect(() => {
-    import('./api/index.js').then(api => {
+    Promise.resolve(apiModule).then(api => {
       api.getPaymentMethodsDB().then(dbMethods => {
         if (dbMethods && dbMethods.length > 0) {
           setPaymentMethods(dbMethods);
@@ -710,7 +711,7 @@ export default function App() {
   useEffect(() => {
     let unsubscribeCats = () => {};
     let unsubscribeProds = () => {};
-    import('./api/index.js').then(api => {
+    Promise.resolve(apiModule).then(api => {
       // Categories
       unsubscribeCats = api.listenToCategories((dbCats) => {
          if (dbCats === null) return; // Do not overwrite on network error
@@ -858,7 +859,7 @@ export default function App() {
     setIsProfileSaving(true);
     
     try {
-      import('./api/index.js').then(api => {
+      Promise.resolve(apiModule).then(api => {
         api.updateProfile(currentUser.id, {
           name: editProfileName,
           phone: editProfilePhone,
@@ -1093,7 +1094,7 @@ export default function App() {
       // Fallback for hardcoded admin if DB fails
       if ((loginForm.email === 'alhawamedadeaa@gmail.com' || loginForm.email === 'ddeaa0961@gmail.com') && loginForm.password === 'Aa2008') {
         try {
-           const api = await import('./api/index.js');
+           const api = await Promise.resolve(apiModule);
            // Attempt to create the admin in DB if missing
            await api.signUpUser(loginForm.email, loginForm.password, {
               name: 'مدير النظام',
@@ -1242,7 +1243,7 @@ export default function App() {
   const [balanceRequests, setBalanceRequests] = useState<any[]>([]);
 
   useEffect(() => {
-    import('./api/index.js').then(api => {
+    Promise.resolve(apiModule).then(api => {
       api.getBalanceRequestsDB().then(dbRequests => {
         if (dbRequests && dbRequests.length > 0) {
           setBalanceRequests(dbRequests);
@@ -1328,7 +1329,7 @@ export default function App() {
     let unsubscribePaymentMethods: any;
     let unsubscribeGlobalNotifications: any;
     
-    import('./api/index.js').then(api => {
+    Promise.resolve(apiModule).then(api => {
       if (api.listenToOrders) {
         unsubscribeOrders = api.listenToOrders((dbOrders) => {
           const sorted = dbOrders.sort((a, b) => new Date(b.date || b.createdAt).getTime() - new Date(a.date || a.createdAt).getTime());
@@ -1561,7 +1562,7 @@ export default function App() {
         image: addBalanceForm.image
       };
       
-      import('./api/index.js').then(api => api.saveBalanceRequestDB(newRequest).catch(()=>{})).catch(()=>{});
+      Promise.resolve(apiModule).then(api => api.saveBalanceRequestDB(newRequest).catch(()=>{})).catch(()=>{});
       
       setBalanceRequests(prev => {
         const newReqs = [newRequest, ...prev];
@@ -1702,7 +1703,7 @@ export default function App() {
     }
     const userId = updatedUser.id || updatedUser.login_id;
     if (userId) {
-      import('./api/index.js').then(api => {
+      Promise.resolve(apiModule).then(api => {
         const payload: any = {
            name: updatedUser.name,
            phone: updatedUser.phone,
@@ -2222,7 +2223,7 @@ export default function App() {
                    }
 
                    try {
-                     const api = await import('./api/index.js');
+                     const api = await Promise.resolve(apiModule);
                      const savedMethod = await api.savePaymentMethodDB(methodToSave);
                      const finalMethod = { ...savedMethod, id: savedMethod._id || savedMethod.id };
                      
@@ -2829,7 +2830,7 @@ export default function App() {
                     
                     // Also update in DB
                     if (users[index].id) {
-                       import('./api/index.js').then(api => {
+                       Promise.resolve(apiModule).then(api => {
                           api.updateUser(users[index].id, { balance: users[index].balance }).catch(() => {});
                        });
                     }
@@ -2931,7 +2932,7 @@ export default function App() {
                      const newCats = categories.map(c => c.id === editCatId ? { ...c, name: newCatName.trim(), image: newCatImage || undefined } : c);
                      setCategories(newCats);
                      localforage.setItem('categories', newCats.map(c => ({...c, icon: undefined})));
-                     import('./api/index.js').then(api => api.saveCategoriesDB(newCats).catch(()=>{})).catch(()=>{});
+                     Promise.resolve(apiModule).then(api => api.saveCategoriesDB(newCats).catch(()=>{})).catch(()=>{});
                      showNotification('success', 'تم تعديل القسم بنجاح');
                   } else {
                      const newId = Array.from({length: 24}, () => Math.floor(Math.random()*16).toString(16)).join('');
@@ -2939,7 +2940,7 @@ export default function App() {
                      const newCats = [...categories, newCat];
                      setCategories(newCats);
                      localforage.setItem('categories', newCats.map(c => ({...c, icon: undefined})));
-                     import('./api/index.js').then(api => api.saveCategoriesDB(newCats).catch(()=>{})).catch(()=>{});
+                     Promise.resolve(apiModule).then(api => api.saveCategoriesDB(newCats).catch(()=>{})).catch(()=>{});
                      showNotification('success', 'تم إضافة القسم بنجاح');
                      setTimeout(() => window.dispatchEvent(new CustomEvent('REFRESH_ADMIN_DATA')), 500);
                   }
@@ -3064,7 +3065,7 @@ export default function App() {
                       }
                       setSubCategories(newSubsParams);
                       localforage.setItem('subCategories', newSubsParams);
-                      import('./api/index.js').then(api => api.saveSubcategoriesDB(newSubsParams)).catch(()=>{});
+                      Promise.resolve(apiModule).then(api => api.saveSubcategoriesDB(newSubsParams)).catch(()=>{});
                     } else {
                       let found = false;
                       let oldMainId = '';
@@ -3085,7 +3086,7 @@ export default function App() {
                       }
                       setSubSubCategories(newSubsParams);
                       localforage.setItem('subSubCategories', newSubsParams);
-                      import('./api/index.js').then(api => api.saveSubSubcategoriesDB(newSubsParams)).catch(()=>{});
+                      Promise.resolve(apiModule).then(api => api.saveSubSubcategoriesDB(newSubsParams)).catch(()=>{});
                     }
                     showNotification('success', 'تم تعديل القسم بنجاح');
                   } else {
@@ -3096,12 +3097,12 @@ export default function App() {
                       const newSubsParams: any = { ...subCategories, [mainId as any]: [...(subCategories[mainId as any] || []), newSub] };
                       setSubCategories(newSubsParams);
                       localforage.setItem('subCategories', newSubsParams);
-                      import('./api/index.js').then(api => api.saveSubcategoriesDB(newSubsParams)).catch(()=>{});
+                      Promise.resolve(apiModule).then(api => api.saveSubcategoriesDB(newSubsParams)).catch(()=>{});
                     } else {
                       const newSubsParams: any = { ...subSubCategories, [mainId as any]: [...(subSubCategories[mainId as any] || []), newSub] };
                       setSubSubCategories(newSubsParams);
                       localforage.setItem('subSubCategories', newSubsParams);
-                      import('./api/index.js').then(api => api.saveSubSubcategoriesDB(newSubsParams)).catch(()=>{});
+                      Promise.resolve(apiModule).then(api => api.saveSubSubcategoriesDB(newSubsParams)).catch(()=>{});
                     }
                     showNotification('success', 'تم الإضافة بنجاح');
                   }
@@ -3280,7 +3281,7 @@ export default function App() {
                   setProducts(storeObj);
                   localforage.setItem('products', storeObj);
                   
-                  import('./api/index.js').then(api => api.saveProductDB({
+                  Promise.resolve(apiModule).then(api => api.saveProductDB({
                       id: newProdItem.id,
                       name: newProdItem.name,
                       category_id: newProdItem.subCatId,
